@@ -1,0 +1,65 @@
+---
+title: "This is a first vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{This is a first vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  dev = "svg", 
+  fig.ext = "svg", fig.width = 7
+)
+
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+theme_set(theme_minimal())
+```
+
+## Data
+
+\[ 
+  X \sim \mathcal N \left( \left[\begin{array}{c} 1\\2\\3\\4\\5\end{array} \right], \left[\begin{array}{c} 5&4&3&2&1\\4&5&4&3&2\\3&4&5&4&3\\2&3&4&5&4\\1&2&3&4&5\end{array} \right]\right)
+\]
+
+
+```{r data}
+I <- 17 ; J <- 5
+set.seed(654)
+X <- MASS::mvrnorm(n = I, mu = 1:J, Sigma = toeplitz(J:1), empirical = TRUE)
+rownames(X) <- sprintf("Ind%02i", 1:I)
+colnames(X) <- sprintf("Var%02i", 1:J)
+```
+
+
+## PCA
+
+```{r pca}
+res.pca <- prcomp(X, center = FALSE, scale. = FALSE)
+PCs <- tibble(
+  ID = rownames(X),
+  as_tibble(res.pca$x))
+taus <- 100 * res.pca$sdev ** 2 / sum(res.pca$sdev ** 2)
+```
+
+## Factor Map
+
+```{r factor map}
+PCs %>%
+  ggplot(aes(PC1, PC2)) + 
+  geom_hline(yintercept = 0, color = "grey") + 
+  geom_vline(xintercept = 0, color = "grey") + 
+  geom_point(color = "darkorchid4", size = 2) +
+  geom_text_repel(aes(label = ID), color = "darkorchid4") +
+  coord_equal() + 
+  labs(
+    x = sprintf("Dim. 1 (%0.1f%%)", taus[1]),
+    y = sprintf("Dim. 2 (%0.1f%%)", taus[2]))
+```
+
+
