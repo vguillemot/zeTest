@@ -1,0 +1,7 @@
+pandoc: '2.18'
+pkgdown: 2.0.6.9000
+pkgdown_sha: 956f076f661eb2de9413f64ea24a580cf444466d
+articles:
+  01FirstVignette: 01FirstVignette.html
+last_built: 2022-07-20T15:06Z
+
